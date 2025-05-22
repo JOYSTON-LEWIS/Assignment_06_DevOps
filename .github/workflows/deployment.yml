@@ -1,0 +1,72 @@
+name: CI/CD Flask App Deployment
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run tests
+      run: pytest test_app.py
+
+    - name: Deploy to EC2 instance
+      if: success()
+      env:
+        EC2_PRIVATE_IP: ${{ secrets.EC2_PRIVATE_IP }}
+        MONGO_URI: ${{ secrets.MONGOURI }}
+        SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+      run: |
+        echo "Deploying to EC2 at $EC2_PRIVATE_IP"
+
+        # Write SSH private key to a file
+        echo "$SSH_PRIVATE_KEY" > private_key.pem
+        chmod 600 private_key.pem
+
+        # SSH into EC2 and run deployment commands
+        ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${EC2_PRIVATE_IP} << 'EOF'
+          echo "Updating system..."
+          sudo apt update -y
+
+          echo "Installing Python 3.11, pip, git..."
+          sudo apt install -y python3.11 python3.11-venv python3.11-dev git
+          curl -sS https://bootstrap.pypa.io/get-pip.py | sudo python3.11
+
+          echo "Cloning the repo..."
+          rm -rf Assignment_06_DevOps
+          git clone https://github.com/JOYSTON-LEWIS/Assignment_06_DevOps.git
+          cd Assignment_06_DevOps
+
+          echo "Setting up virtual environment and installing requirements..."
+          python3.11 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+
+          echo "Creating .env file with Mongo URI..."
+          echo "MONGO_URI=${MONGO_URI}" > .env
+
+          echo "Killing existing Flask app if running..."
+          pkill -f "python app.py" || true
+
+          echo "Starting Flask app in background..."
+          nohup python app.py > output.log 2>&1 &
+        EOF
+
+        # Remove private key file after deployment
+        rm -f private_key.pem
