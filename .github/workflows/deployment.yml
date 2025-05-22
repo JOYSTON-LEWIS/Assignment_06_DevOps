@@ -6,22 +6,23 @@ on:
       - staging
 
 jobs:
-  deploy:
+  build-test-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: '3.11'
 
-      - name: Create .env for tests
+      - name: Create .env file for tests
         run: |
-          echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
-          export MONGO_URI=${{ secrets.MONGO_URI }}
+          echo "MONGO_URI=${{ secrets.MONGOURI }}" > .env
+        env:
+          MONGO_URI: ${{ secrets.MONGOURI }}
 
       - name: Install dependencies
         run: |
@@ -29,30 +30,53 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run tests
+        env:
+          MONGO_URI: ${{ secrets.MONGOURI }}
         run: pytest test_app.py
 
-      - name: Set up SSH and deploy to EC2
+      - name: Deploy to EC2 instance
+        if: success()
         env:
+          EC2_PRIVATE_IP: ${{ secrets.EC2_PRIVATE_IP }}
+          MONGO_URI: ${{ secrets.MONGOURI }}
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-          MONGO_URI: ${{ secrets.MONGO_URI }}
         run: |
+          echo "Deploying to EC2 at $EC2_PRIVATE_IP"
+
+          # Write SSH private key to a file
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
 
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          # SSH into EC2 and run deployment commands
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${EC2_PRIVATE_IP} << 'EOF'
+            echo "Updating system..."
             sudo apt update -y
+
+            echo "Installing Python 3.11, pip, and git..."
             sudo apt install -y python3.11 python3.11-venv python3.11-dev git
             curl -sS https://bootstrap.pypa.io/get-pip.py | sudo python3.11
+
+            echo "Cloning the repository..."
             rm -rf Assignment_06_DevOps
             git clone https://github.com/JOYSTON-LEWIS/Assignment_06_DevOps.git
             cd Assignment_06_DevOps
+
+            echo "Setting up virtual environment..."
             python3.11 -m venv venv
             source venv/bin/activate
+
+            echo "Installing dependencies..."
             pip install -r requirements.txt
+
+            echo "Creating .env file..."
             echo "MONGO_URI=${MONGO_URI}" > .env
+
+            echo "Killing existing Flask app if running..."
             pkill -f "python app.py" || true
+
+            echo "Starting Flask app in background..."
             nohup python app.py > output.log 2>&1 &
           EOF
 
-      - name: Cleanup
-        run: rm -f private_key.pem
+          # Remove private key from runner
+          rm -f private_key.pem
