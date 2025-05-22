@@ -1,0 +1,4 @@
+Flask==2.2.5
+pytest==8.1.1
+Werkzeug<3.0.0
+pymongo==4.6.0
