@@ -5,20 +5,12 @@ on:
     types: [published]
 
 jobs:
-  build-test-deploy-prod:
+  build-test-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Skip if not released from staging branch
-      if: github.event.release.target_commitish != 'staging'
-      run: |
-        echo "Release was not created from 'staging'. Skipping deployment."
-        exit 0
-
     - name: Checkout code
       uses: actions/checkout@v3
-      with:
-        ref: ${{ github.event.release.target_commitish }}
 
     - name: Set up Python 3.11
       uses: actions/setup-python@v5
@@ -34,23 +26,22 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run tests
-      env:
-        MONGO_URI: ${{ secrets.MONGOURI }}
       run: pytest test_app.py
 
-    - name: Deploy to Production EC2 instance
+    - name: Deploy to EC2 instance
       if: success()
       env:
         EC2_PRIVATE_IP: ${{ secrets.EC2_PRIVATE_IP_PROD_A06 }}
         MONGO_URI: ${{ secrets.MONGOURI }}
         SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
       run: |
-        echo "Deploying to Production EC2 at $EC2_PRIVATE_IP"
+        echo "Deploying to EC2 at $EC2_PRIVATE_IP"
 
         # Write SSH private key to a file
         echo "$SSH_PRIVATE_KEY" > private_key.pem
         chmod 600 private_key.pem
 
+        # SSH into EC2 and run deployment commands
         ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${EC2_PRIVATE_IP} << EOF
           echo "Updating system..."
           sudo apt update -y
@@ -78,12 +69,13 @@ jobs:
           echo "Starting Flask app with nohup..."
           nohup python3 app.py > output.log 2>&1 &
 
+          # Configure NGINX
           echo "Configuring NGINX..."
           cat << 'NGINX_CONF' | sudo tee /etc/nginx/sites-available/flaskapp
           server {
               listen 80;
               server_name _;
-
+          
               location / {
                   proxy_pass http://127.0.0.1:5000;
                   proxy_set_header Host \$host;
@@ -92,11 +84,12 @@ jobs:
               }
           }
           NGINX_CONF
+          
+                    echo "Enabling NGINX config..."
+                    sudo ln -sf /etc/nginx/sites-available/flaskapp /etc/nginx/sites-enabled/flaskapp
+                    sudo rm -f /etc/nginx/sites-enabled/default
+                    sudo nginx -t && sudo systemctl restart nginx
+          EOF
 
-          echo "Enabling NGINX config..."
-          sudo ln -sf /etc/nginx/sites-available/flaskapp /etc/nginx/sites-enabled/flaskapp
-          sudo rm -f /etc/nginx/sites-enabled/default
-          sudo nginx -t && sudo systemctl restart nginx
-        EOF
-
+        # Remove private key file after deployment
         rm -f private_key.pem
