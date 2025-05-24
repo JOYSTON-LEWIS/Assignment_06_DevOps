@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - staging
+  release:
+    types: [published]
 
 jobs:
   build-test-deploy:
