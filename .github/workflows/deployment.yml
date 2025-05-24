@@ -8,7 +8,8 @@ on:
     types: [published]
 
 jobs:
-  build-test-deploy:
+  deploy-to-staging:
+    if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
 
     steps:
@@ -31,51 +32,33 @@ jobs:
     - name: Run tests
       run: pytest test_app.py
 
-    - name: Deploy to EC2 instance
-      if: success()
+    - name: Deploy to EC2 instance (Staging)
       env:
         EC2_PRIVATE_IP: ${{ secrets.EC2_PRIVATE_IP }}
         MONGO_URI: ${{ secrets.MONGOURI }}
         SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
       run: |
-        echo "Deploying to EC2 at $EC2_PRIVATE_IP"
-
+        echo "Deploying to Staging EC2 at $EC2_PRIVATE_IP"
         echo "$SSH_PRIVATE_KEY" > private_key.pem
         chmod 600 private_key.pem
 
         ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${EC2_PRIVATE_IP} << EOF
-          echo "Updating system..."
           sudo apt update -y
-
-          echo "Installing dependencies..."
           sudo apt install -y python3 python3-venv python3-pip nginx git
-
-          echo "Cloning the repo..."
           rm -rf Assignment_06_DevOps
           git clone https://github.com/JOYSTON-LEWIS/Assignment_06_DevOps.git
           cd Assignment_06_DevOps
-
-          echo "Setting up virtual environment and installing requirements..."
           python3 -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
-
-          echo "Creating .env file with Mongo URI..."
           echo "MONGO_URI=${MONGO_URI}" > .env
-
-          echo "Killing existing Flask app if running..."
           pkill -f "python app.py" || true
-
-          echo "Starting Flask app with nohup..."
           nohup python3 app.py > output.log 2>&1 &
-
-          echo "Configuring NGINX..."
           cat << 'NGINX_CONF' | sudo tee /etc/nginx/sites-available/flaskapp
           server {
               listen 80;
               server_name _;
-
               location / {
                   proxy_pass http://127.0.0.1:5000;
                   proxy_set_header Host \$host;
@@ -84,8 +67,6 @@ jobs:
               }
           }
           NGINX_CONF
-
-          echo "Enabling NGINX config..."
           sudo ln -sf /etc/nginx/sites-available/flaskapp /etc/nginx/sites-enabled/flaskapp
           sudo rm -f /etc/nginx/sites-enabled/default
           sudo nginx -t && sudo systemctl restart nginx
@@ -93,7 +74,7 @@ jobs:
 
         rm -f private_key.pem
 
-  build-test-deploy-production:
+  deploy-to-production:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
 
@@ -106,58 +87,44 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Create .env file with MONGO_URI for production
-      run: echo "MONGO_URI=${{ secrets.PROD_MONGOURI }}" > .env
+    - name: Create .env file with MONGO_URI for tests
+      run: echo "MONGO_URI=${{ secrets.PROD_MONGO_URI }}" > .env
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Deploy to Production EC2 instance
+    - name: Run tests
+      run: pytest test_app.py
+
+    - name: Deploy to EC2 instance (Production)
       env:
         EC2_PRIVATE_IP: ${{ secrets.PROD_EC2_PRIVATE_IP }}
-        MONGO_URI: ${{ secrets.PROD_MONGOURI }}
-        SSH_PRIVATE_KEY: ${{ secrets.PROD_EC2_SSH_PRIVATE_KEY }}
+        MONGO_URI: ${{ secrets.PROD_MONGO_URI }}
+        SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
       run: |
         echo "Deploying to Production EC2 at $EC2_PRIVATE_IP"
-
         echo "$SSH_PRIVATE_KEY" > private_key.pem
         chmod 600 private_key.pem
 
         ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${EC2_PRIVATE_IP} << EOF
-          echo "Updating system..."
           sudo apt update -y
-
-          echo "Installing dependencies..."
           sudo apt install -y python3 python3-venv python3-pip nginx git
-
-          echo "Cloning the repo..."
           rm -rf Assignment_06_DevOps
           git clone https://github.com/JOYSTON-LEWIS/Assignment_06_DevOps.git
           cd Assignment_06_DevOps
-
-          echo "Setting up virtual environment and installing requirements..."
           python3 -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
-
-          echo "Creating .env file with Mongo URI..."
           echo "MONGO_URI=${MONGO_URI}" > .env
-
-          echo "Killing existing Flask app if running..."
           pkill -f "python app.py" || true
-
-          echo "Starting Flask app with nohup..."
           nohup python3 app.py > output.log 2>&1 &
-
-          echo "Configuring NGINX..."
           cat << 'NGINX_CONF' | sudo tee /etc/nginx/sites-available/flaskapp
           server {
               listen 80;
               server_name _;
-
               location / {
                   proxy_pass http://127.0.0.1:5000;
                   proxy_set_header Host \$host;
@@ -166,8 +133,6 @@ jobs:
               }
           }
           NGINX_CONF
-
-          echo "Enabling NGINX config..."
           sudo ln -sf /etc/nginx/sites-available/flaskapp /etc/nginx/sites-enabled/flaskapp
           sudo rm -f /etc/nginx/sites-enabled/default
           sudo nginx -t && sudo systemctl restart nginx
