@@ -15,18 +15,30 @@ It covers building, testing, and deploying the application to staging and produc
 
 ```bash
 .
-├── app.py                 # Flask application
-├── test_app.py            # Pytest unit tests
-├── requirements.txt       # Python dependencies
-├── Jenkinsfile            # Jenkins pipeline definition
+├── app.py                     # Flask application
+├── test_app.py                # Pytest unit tests
+├── requirements.txt           # Python dependencies
+├── Jenkinsfile                # Jenkins pipeline definition
 ├── .github/workflows/
-│   └── deployment.yml     # GitHub Actions workflow
-└── README.md              # Project documentation
-└── .env                   # Secrets File
-
-The pipeline follows these steps:
+│   └── deployment.yml         # GitHub Actions workflow for staging deployment
+│   └── deployment_prod.yaml   # GitHub Actions workflow for production deployment
+└── README.md                  # Project documentation
+└── .env                       # Secrets File
 
 ```
+
+## 🔐 Define `.env` File
+
+Before running or deploying the Flask application, create a `.env` file in the root of your project directory with the following contents:
+
+```env
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/
+PORT=5000
+```
+
+- This is the same for both the tasks
+- Default Port of application is 5000 so it is not mandatory
+- If you specify some other port ensure that you Jenkinsfile, Github Workflows have their code updated accordingly
 
 ## 📌 Task 1: Deployment With Jenkins
 1) Setup:
@@ -242,9 +254,44 @@ VALUE: YOUR_EMAIL_ID_HERE (to which you want the success or failure email to be 
 
 #### 📸 Configure Jenkins Global Variables Screenshots
 
-
+![JK_ENV_01](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_ENV_01.png)
+![JK_ENV_02](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_ENV_02.png)
+![JK_ENV_03](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_ENV_03.png)
+![JK_ENV_04](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_ENV_04.png)
 
 #### 📸 Output Screenshots
+
+![JK_01](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_01.png)
+![JK_02](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_02.png)
+![JK_03](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_03.png)
+![JK_04](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_04.png)
+![JK_05](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_05.png)
+![JK_06](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_06.png)
+![JK_07](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_07.png)
+![JK_08](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_08.png)
+![JK_09](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_09.png)
+![JK_10](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_10.png)
+![JK_11](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_11.png)
+![JK_12](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_12.png)
+![JK_13](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_13.png)
+![JK_14](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_14.png)
+![JK_15](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_15.png)
+![JK_16](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_16.png)
+![JK_17](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_17.png)
+![JK_18](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_18.png)
+![JK_19](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_19.png)
+![JK_20](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_20.png)
+![JK_21](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_21.png)
+![JK_22](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_22.png)
+![JK_23](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_23.png)
+![JK_24](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_24.png)
+![JK_25](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_25.png)
+![JK_26](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_26.png)
+![JK_27](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_27.png)
+![JK_28](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_28.png)
+![JK_29](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_29.png)
+![JK_30](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_30.png)
+![JK_31](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/JK_31.png)
 
 
 ## 📌 Task 2: Deployment With Github Actions
@@ -267,7 +314,7 @@ VALUE: YOUR_EMAIL_ID_HERE (to which you want the success or failure email to be 
 4) Environment Secrets:
 - Use GitHub Secrets to store sensitive information required for deployments (e.g., deployment keys, API tokens).
 
-deployment.yml has been Configured in this repository in the following manner to achieve these use cases: 
+deployment.yml and deployment_prod.yml has been Configured in this repository in the following manner to achieve these use cases: 
 
 FileName:
 ```
@@ -376,11 +423,161 @@ jobs:
         rm -f private_key.pem
 ```
 
+FileName:
+```
+deployment_prod.yaml
+```
+
+Code:
+```yml
+name: CI/CD Flask App Production Deployment
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Create .env file with MONGO_URI for tests
+      run: echo "MONGO_URI=${{ secrets.MONGOURI }}" > .env
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run tests
+      run: pytest test_app.py
+
+    - name: Deploy to EC2 instance
+      if: success()
+      env:
+        EC2_PRIVATE_IP: ${{ secrets.EC2_PRIVATE_IP_PROD_A06 }}
+        MONGO_URI: ${{ secrets.MONGOURI }}
+        SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+      run: |
+        echo "Deploying to EC2 at $EC2_PRIVATE_IP"
+
+        # Write SSH private key to a file
+        echo "$SSH_PRIVATE_KEY" > private_key.pem
+        chmod 600 private_key.pem
+
+        # SSH into EC2 and run deployment commands
+        ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${EC2_PRIVATE_IP} << EOF
+          echo "Updating system..."
+          sudo apt update -y
+
+          echo "Installing dependencies..."
+          sudo apt install -y python3 python3-venv python3-pip nginx git
+
+          echo "Cloning the repo..."
+          rm -rf Assignment_06_DevOps
+          git clone https://github.com/JOYSTON-LEWIS/Assignment_06_DevOps.git
+          cd Assignment_06_DevOps
+
+          echo "Setting up virtual environment and installing requirements..."
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+          echo "Creating .env file with Mongo URI..."
+          echo "MONGO_URI=${MONGO_URI}" > .env
+
+          echo "Killing existing Flask app if running..."
+          pkill -f "python app.py" || true
+
+          echo "Starting Flask app with nohup..."
+          nohup python3 app.py > output.log 2>&1 &
+
+          # Configure NGINX
+          echo "Configuring NGINX..."
+          cat << 'NGINX_CONF' | sudo tee /etc/nginx/sites-available/flaskapp
+          server {
+              listen 80;
+              server_name _;
+          
+              location / {
+                  proxy_pass http://127.0.0.1:5000;
+                  proxy_set_header Host \$host;
+                  proxy_set_header X-Real-IP \$remote_addr;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+              }
+          }
+          NGINX_CONF
+          
+                    echo "Enabling NGINX config..."
+                    sudo ln -sf /etc/nginx/sites-available/flaskapp /etc/nginx/sites-enabled/flaskapp
+                    sudo rm -f /etc/nginx/sites-enabled/default
+                    sudo nginx -t && sudo systemctl restart nginx
+          EOF
+
+        # Remove private key file after deployment
+        rm -f private_key.pem
+```
+
+Provide the following variables into your Github Repository Secrets as follows:
+
+```Github_Secrets
+VARIABLE NAME: EC2_PRIVATE_IP
+VALUE: YOUR_STAGING_EC2_IP_ADDRESS_HERE
+
+VARIABLE NAME: EC2_PRIVATE_IP_PROD_A06
+VALUE: YOUR_PRODUCTION_EC2_IP_ADDRESS_HERE
+
+VARIABLE NAME: EC2_SSH_PRIVATE_KEY
+VALUE: YOUR_EC2_SSH_PRIVATE_KEY_HERE
+
+VARIABLE NAME: MONGOURI
+VALUE: YOUR_MONGO_URI_STRING_HERE
+
+```
+
+
 #### 📸 Configure Github Secrets Screenshots
 
+![GA_ENV_01](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_ENV_01.png)
+![GA_ENV_02](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_ENV_02.png)
 
 #### 📸 Output Screenshots
 
+![GA_01](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_01.png)
+![GA_02](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_02.png)
+![GA_03](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_03.png)
+![GA_04](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_04.png)
+![GA_05](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_05.png)
+![GA_06](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_06.png)
+![GA_07](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_07.png)
+![GA_08](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_08.png)
+![GA_09](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_09.png)
+![GA_10](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_10.png)
+![GA_11](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_11.png)
+![GA_12](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_12.png)
+![GA_13](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_13.png)
+![GA_14](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_14.png)
+![GA_15](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_15.png)
+![GA_16](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_16.png)
+![GA_17](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_17.png)
+![GA_18](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_18.png)
+![GA_19](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_19.png)
+![GA_20](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_20.png)
+![GA_21](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_21.png)
+![GA_22](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_22.png)
+![GA_23](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_23.png)
+![GA_24](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_24.png)
+![GA_25](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_25.png)
+![GA_26](https://github.com/JOYSTON-LEWIS/My-Media-Repository/blob/main/Assignment_06_DevOps_Outputs_Images/GA_26.png)
 
 ## 📜 License
 This project is licensed under the MIT License.
