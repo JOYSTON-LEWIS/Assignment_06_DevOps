@@ -6,6 +6,7 @@ pipeline {
     JL_EC2_PRIVATE_IP_A06 = credentials('JL_EC2_PRIVATE_IP_A06')
     JL_EC2_SSH_PRIVATE_KEY = credentials('JL_EC2_SSH_PRIVATE_KEY')
     JL_EC2_USER = credentials('JL_EC2_USER')
+    JL_MAIL_TO_EMAIL_ID_A06 = credentials('JL_MAIL_TO_EMAIL_ID_A06')
   }
 
   stages {
@@ -135,5 +136,18 @@ EOF
   }
 }
 
+  }
+
+  post {
+    success {
+      mail to: "${env.JL_MAIL_TO_EMAIL_ID_A06}",
+           subject: "✅ SUCCESS: Build #${env.BUILD_NUMBER}",
+           body: "Build succeeded. View it at: ${env.BUILD_URL}"
+    }
+    failure {
+      mail to: "${env.JL_MAIL_TO_EMAIL_ID_A06}",
+           subject: "❌ FAILURE: Build #${env.BUILD_NUMBER}",
+           body: "Build failed. View it at: ${env.BUILD_URL}"
+    }
   }
 }
