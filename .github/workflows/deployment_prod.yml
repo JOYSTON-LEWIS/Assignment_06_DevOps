@@ -8,10 +8,13 @@ jobs:
   build-test-deploy-prod:
     runs-on: ubuntu-latest
 
-    # Only run if release target_commitish is "staging"
-    if: github.event.release.target_commitish == 'staging'
-
     steps:
+    - name: Skip if not released from staging branch
+      if: github.event.release.target_commitish != 'staging'
+      run: |
+        echo "Release was not created from 'staging'. Skipping deployment."
+        exit 0
+
     - name: Checkout code
       uses: actions/checkout@v3
       with:
@@ -80,7 +83,7 @@ jobs:
           server {
               listen 80;
               server_name _;
-          
+
               location / {
                   proxy_pass http://127.0.0.1:5000;
                   proxy_set_header Host \$host;
@@ -89,7 +92,7 @@ jobs:
               }
           }
           NGINX_CONF
-          
+
           echo "Enabling NGINX config..."
           sudo ln -sf /etc/nginx/sites-available/flaskapp /etc/nginx/sites-enabled/flaskapp
           sudo rm -f /etc/nginx/sites-enabled/default
